@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+runs/
+eval_outputs/
+data/index.parquet
+*.nc
+.DS_Store
+*.egg-info/

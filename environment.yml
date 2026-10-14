@@ -1,0 +1,20 @@
+name: stilt-interp
+channels:
+  - pytorch
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pytorch>=2.2
+  #- pytorch-cuda=12.1        # remove/adjust this line if training on CPU only
+  - numpy
+  - pandas
+  - xarray
+  - netcdf4
+  - h5netcdf
+  - pyarrow                  # for the parquet sample index
+  - matplotlib
+  - tqdm
+  - pyyaml
+  - tensorboard
+  - pytest
+  - pip

@@ -1,0 +1,9 @@
+[project]
+name = "stilt-footprint-interp"
+version = "0.1.0"
+description = "Temporal super-resolution of STILT footprints (hourly -> 15-minute) via deep learning"
+requires-python = ">=3.10"
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]

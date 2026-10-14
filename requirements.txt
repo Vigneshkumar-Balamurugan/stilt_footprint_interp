@@ -1,0 +1,12 @@
+torch>=2.2
+numpy
+pandas
+xarray
+netCDF4
+h5netcdf
+pyarrow
+matplotlib
+tqdm
+pyyaml
+tensorboard
+pytest

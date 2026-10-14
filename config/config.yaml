@@ -1,0 +1,72 @@
+seed: 42
+
+data:
+  raw_dir: "D:/Test_FP"   # folder of YYYY-MM-DD.nc files
+  index_path: "data/index.parquet"             # written by scripts/build_index.py
+  var_name: "ma foot"
+  time_dim: "recep_time"
+  lat_name: "lat"
+  lon_name: "lon"
+
+  # nominal spacing of the raw data; used only to detect gaps, not assumed globally
+  native_interval_minutes: 15
+  hourly_interval_minutes: 60
+
+  # receptor location, fixed for this project
+  receptor_lat: 48.1509
+  receptor_lon: 11.56861
+  crop_half: 20            # crop = (2*crop_half + 1) x (2*crop_half + 1) = 41x41
+
+  # a sample = target interval [t, t+1h]; requires real frames at
+  # t-1h, t, t+1h, t+2h AND gap-free 15-min coverage across [t-1h, t+2h]
+  bracket_offsets_hours: [-1, 0, 1, 2]
+  interior_offsets_minutes: [15, 30, 45]   # relative to t
+
+  allow_cross_midnight: false   # if true, a sample may span two consecutive daily files
+
+  # day-level split (not sample-level, to avoid leakage across overlapping brackets)
+  val_frac: 0.15
+  test_frac: 0.15
+
+  # normalization: footprints are heavy-tailed and mostly near-zero
+  normalization: "log1p"     # one of: "log1p", "none"
+  log1p_scale: 1.0e8         # ma_foot is typically ~1e-6-1e-3; scale before log1p, tune to your units
+
+dataloader:
+  batch_size: 16
+  num_workers: 4
+  pin_memory: true
+
+model:
+  name: "unet3d"   # one of: flow_refine, unet3d, convlstm
+  base_channels: 32
+  flow_refine:
+    flow_hidden_channels: 32
+    refine_hidden_channels: 32
+  unet3d:
+    depth: 3
+  convlstm:
+    hidden_channels: [32, 32]
+    kernel_size: 3
+
+loss:
+  name: "weighted_l1"        # one of: weighted_l1, weighted_mse
+  magnitude_weight_eps: 1.0e-3   # weight = (target + eps) / mean(target + eps), see src/losses.py
+  mass_conservation_weight: 0.05  # 0 to disable
+
+train:
+  epochs: 100
+  lr: 3.0e-4
+  weight_decay: 1.0e-5
+  optimizer: "adamw"
+  scheduler: "cosine"
+  early_stopping_patience: 15
+  grad_clip_norm: 5.0
+  amp: true                  # mixed precision
+  out_dir: "runs"
+  log_every_n_steps: 50
+  device: "cuda"              # falls back to cpu automatically if unavailable
+
+evaluate:
+  out_dir: "eval_outputs"
+  num_example_plots: 12
